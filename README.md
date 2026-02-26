@@ -1,2 +1,3 @@
 # Tiny_Project
-My first git repository.
+My first Git Repository.
+Author - Madhav Pratap Singh
