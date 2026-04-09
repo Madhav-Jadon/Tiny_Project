@@ -16,10 +16,10 @@ smart_attendance_system/
 ├── attendance.csv          ← Auto-created on first run
 │
 ├── face_data/              ← Student photo database
-│   ├── Ishank/
+│   ├── Kavya/
 │   │   ├── img1.jpg
 │   │   └── img2.jpg
-│   ├── Rahul/
+│   ├── Krishn/
 │   │   └── img1.jpg
 │   └── (one folder per student)
 │
@@ -50,11 +50,11 @@ Create one folder per student inside `face_data/`. Add **3–5 clear photos** pe
 
 ```
 face_data/
-├── Ishank/
+├── Kavya/
 │   ├── img1.jpg
 │   ├── img2.jpg
 │   └── img3.jpg
-└── Rahul/
+└── Krishn/
     ├── img1.jpg
     └── img2.jpg
 ```
@@ -123,3 +123,10 @@ Change these before deploying.
 - For group photos, ensure the room is well-lit
 - The system automatically upscales small images for better detection of distant faces
 - Recognition threshold is set to `0.4` cosine similarity — increase to `0.45` if you get too many false positives
+
+## Team Members
+
+- Madhav Pratap Singh
+- Kavya Agarwal
+- Krishn Singh
+- Shaurya Berdhan Singh
