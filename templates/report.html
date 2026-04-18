@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Smart Attendance — Report</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #f0f4f8;
+      --surface:    #ffffff;
+      --surface2:   #f8fafc;
+      --border:     #dde3ec;
+      --accent:     #2563eb;
+      --accent-h:   #1d4ed8;
+      --green:      #16a34a;
+      --green-bg:   #f0fdf4;
+      --green-bd:   #bbf7d0;
+      --red:        #dc2626;
+      --red-bg:     #fef2f2;
+      --red-bd:     #fecaca;
+      --text:       #0f172a;
+      --muted:      #64748b;
+      --sidebar-w:  240px;
+      --radius:     12px;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* ── Sidebar ─────────────────────────────────── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 22px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo-icon {
+      width: 36px; height: 36px;
+      background: var(--accent);
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .logo-icon svg { width: 18px; height: 18px; fill: white; }
+
+    .logo-text {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .logo-text span { color: var(--accent); }
+
+    .nav { padding: 16px 12px; flex: 1; }
+
+    .nav a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      transition: background 0.15s, color 0.15s;
+      margin-bottom: 2px;
+    }
+    .nav a svg { width: 17px; height: 17px; flex-shrink: 0; }
+    .nav a:hover { background: var(--bg); color: var(--text); }
+    .nav a.active { background: #eff6ff; color: var(--accent); }
+
+    /* ── Main ────────────────────────────────────── */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      padding: 32px 40px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+    }
+
+    .page-title {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .btn-logout {
+      background: var(--red-bg);
+      border: 1px solid var(--red-bd);
+      color: var(--red);
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .btn-logout:hover { background: #fee2e2; }
+
+    /* ── Date group ──────────────────────────────── */
+    .date-group { margin-bottom: 30px; }
+
+    .date-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .date-badge {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+
+    .date-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── Table ───────────────────────────────────── */
+    .table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead th {
+      background: var(--surface2);
+      padding: 12px 20px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.1s;
+    }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--bg); }
+
+    tbody td {
+      padding: 14px 20px;
+      font-size: 14px;
+      vertical-align: top;
+    }
+
+    .lec-badge {
+      background: #eff6ff;
+      color: var(--accent);
+      border: 1px solid #bfdbfe;
+      border-radius: 6px;
+      padding: 3px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      display: inline-block;
+    }
+
+    .count-present { color: var(--green); font-weight: 700; }
+    .count-absent  { color: var(--red);   font-weight: 700; }
+    .count-total   { color: var(--text);  font-weight: 600; }
+
+    /* Expandable names */
+    .names-toggle {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 11px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 2px 8px;
+      border-radius: 4px;
+      transition: all 0.15s;
+      margin-left: 8px;
+    }
+    .names-toggle:hover { border-color: var(--accent); color: var(--accent); }
+
+    .names-list {
+      display: none;
+      margin-top: 8px;
+      padding: 8px 12px;
+      background: var(--bg);
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+    .names-list.open { display: block; }
+
+    .names-list span {
+      display: inline-block;
+      margin: 3px 4px;
+      font-size: 12px;
+      color: var(--muted);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 8px;
+    }
+
+    /* Empty state */
+    .empty {
+      text-align: center;
+      padding: 80px 0;
+      color: var(--muted);
+    }
+    .empty h3 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .empty p { font-size: 14px; }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+      </div>
+      <div class="logo-text">Smart<span>Attend</span></div>
+    </div>
+    <nav class="nav">
+      <a href="{{ url_for('dashboard') }}">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+        Dashboard
+      </a>
+      <a href="{{ url_for('report') }}" class="active">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
+        Attendance Report
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="topbar">
+      <h1 class="page-title">Attendance Report</h1>
+      <a href="{{ url_for('logout') }}" class="btn-logout">Logout</a>
+    </div>
+
+    {% if report %}
+      {% for day in report %}
+      <div class="date-group">
+        <div class="date-header">
+          <div class="date-badge">📅 {{ day.date }}</div>
+          <div class="date-line"></div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Lecture</th>
+                <th>Present</th>
+                <th>Absent</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in day.lectures %}
+              <tr>
+                <td><span class="lec-badge">{{ row.lecture }}</span></td>
+                <td>
+                  <span class="count-present">{{ row.present }}</span>
+                  {% if row.present_names %}
+                  <button class="names-toggle" onclick="toggleNames(this)">▾ names</button>
+                  <div class="names-list">
+                    {% for n in row.present_names %}<span>{{ n }}</span>{% endfor %}
+                  </div>
+                  {% endif %}
+                </td>
+                <td>
+                  <span class="count-absent">{{ row.absent }}</span>
+                  {% if row.absent_names %}
+                  <button class="names-toggle" onclick="toggleNames(this)">▾ names</button>
+                  <div class="names-list">
+                    {% for n in row.absent_names %}<span>{{ n }}</span>{% endfor %}
+                  </div>
+                  {% endif %}
+                </td>
+                <td><span class="count-total">{{ row.present + row.absent }}</span></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% endfor %}
+
+    {% else %}
+      <div class="empty">
+        <h3>No attendance records yet</h3>
+        <p>Go to the dashboard and mark attendance for a lecture first.</p>
+      </div>
+    {% endif %}
+  </main>
+
+  <script>
+    function toggleNames(btn) {
+      const list = btn.nextElementSibling;
+      list.classList.toggle('open');
+      btn.textContent = list.classList.contains('open') ? '▴ names' : '▾ names';
+    }
+  </script>
+</body>
+</html>

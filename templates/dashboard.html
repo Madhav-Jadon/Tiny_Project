@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Smart Attendance — Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #f0f4f8;
+      --surface:    #ffffff;
+      --surface2:   #f8fafc;
+      --border:     #dde3ec;
+      --accent:     #2563eb;
+      --accent-h:   #1d4ed8;
+      --green:      #16a34a;
+      --green-bg:   #f0fdf4;
+      --green-bd:   #bbf7d0;
+      --red:        #dc2626;
+      --red-bg:     #fef2f2;
+      --red-bd:     #fecaca;
+      --text:       #0f172a;
+      --muted:      #64748b;
+      --sidebar-w:  240px;
+      --radius:     12px;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* ── Sidebar ─────────────────────────────────── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 22px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo-icon {
+      width: 36px; height: 36px;
+      background: var(--accent);
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .logo-icon svg { width: 18px; height: 18px; fill: white; }
+
+    .logo-text {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .logo-text span { color: var(--accent); }
+
+    .nav { padding: 16px 12px; flex: 1; }
+
+    .nav a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      transition: background 0.15s, color 0.15s;
+      margin-bottom: 2px;
+    }
+    .nav a svg { width: 17px; height: 17px; flex-shrink: 0; }
+    .nav a:hover { background: var(--bg); color: var(--text); }
+    .nav a.active { background: #eff6ff; color: var(--accent); }
+
+    /* ── Main ────────────────────────────────────── */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      padding: 32px 40px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+    }
+
+    .page-title {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .btn-logout {
+      background: var(--red-bg);
+      border: 1px solid var(--red-bd);
+      color: var(--red);
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .btn-logout:hover { background: #fee2e2; }
+
+    /* ── Card ────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      margin-bottom: 22px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 22px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+      align-items: end;
+    }
+
+    .field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 7px;
+    }
+
+    select, .file-input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+    }
+    select:focus, .file-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 11px 28px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      white-space: nowrap;
+    }
+    .btn-primary:hover { background: var(--accent-h); transform: translateY(-1px); }
+
+    /* ── Stats ───────────────────────────────────── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .stat-card {
+      border-radius: var(--radius);
+      padding: 22px 24px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .stat-card.present { background: var(--green-bg); border-color: var(--green-bd); }
+    .stat-card.absent  { background: var(--red-bg);   border-color: var(--red-bd); }
+
+    .stat-label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      color: var(--muted);
+    }
+    .stat-card.present .stat-label { color: var(--green); }
+    .stat-card.absent  .stat-label { color: var(--red); }
+
+    .stat-value {
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .stat-card.present .stat-value { color: var(--green); }
+    .stat-card.absent  .stat-value { color: var(--red); }
+
+    /* ── Student lists ───────────────────────────── */
+    .lists-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .list-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .list-header {
+      padding: 13px 18px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+    }
+    .list-header.present { color: var(--green); background: var(--green-bg); border-color: var(--green-bd); }
+    .list-header.absent  { color: var(--red);   background: var(--red-bg);   border-color: var(--red-bd); }
+
+    .list-body { padding: 8px 0; }
+
+    .list-item {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 9px 18px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background 0.1s;
+    }
+    .list-item:hover { background: var(--bg); }
+
+    .avatar {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .present .avatar { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-bd); }
+    .absent  .avatar { background: var(--red-bg);   color: var(--red);   border: 1px solid var(--red-bd); }
+
+    .empty-state {
+      padding: 28px 18px;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .flash-error {
+      background: var(--red-bg);
+      border: 1px solid var(--red-bd);
+      color: var(--red);
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 13px;
+      margin-bottom: 20px;
+    }
+
+    .btn-report {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      color: var(--text);
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .btn-report:hover { background: var(--bg); border-color: var(--accent); color: var(--accent); }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+      </div>
+      <div class="logo-text">Smart<span>Attend</span></div>
+    </div>
+    <nav class="nav">
+      <a href="{{ url_for('dashboard') }}" class="active">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+        Dashboard
+      </a>
+      <a href="{{ url_for('report') }}">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
+        Attendance Report
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="topbar">
+      <h1 class="page-title">Admin Dashboard</h1>
+      <a href="{{ url_for('logout') }}" class="btn-logout">Logout</a>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="flash-error">⚠ {{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <!-- Mark Attendance Form -->
+    <div class="card">
+      <div class="card-title">Mark Attendance</div>
+      <form method="POST" enctype="multipart/form-data">
+        <div class="form-row">
+          <div class="field">
+            <label>Select Lecture</label>
+            <select name="lecture">
+              {% for lec in lectures %}
+                <option value="{{ lec }}">{{ lec }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label>Group Photo</label>
+            <input type="file" name="group_photo" accept=".jpg,.jpeg,.png" class="file-input"/>
+          </div>
+        </div>
+        <button type="submit" class="btn-primary">Mark Attendance →</button>
+      </form>
+    </div>
+
+    {% if result %}
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Students</div>
+        <div class="stat-value">{{ result.total }}</div>
+      </div>
+      <div class="stat-card present">
+        <div class="stat-label">Present</div>
+        <div class="stat-value">{{ result.present | length }}</div>
+      </div>
+      <div class="stat-card absent">
+        <div class="stat-label">Absent</div>
+        <div class="stat-value">{{ result.absent | length }}</div>
+      </div>
+    </div>
+
+    <!-- Student Lists -->
+    <div class="lists-grid">
+      <div class="list-box present">
+        <div class="list-header present">✓ Present Students</div>
+        <div class="list-body">
+          {% if result.present %}
+            {% for name in result.present %}
+            <div class="list-item">
+              <div class="avatar">{{ name[0].upper() }}</div>
+              {{ name }}
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="empty-state">No students recognized</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="list-box absent">
+        <div class="list-header absent">✗ Absent Students</div>
+        <div class="list-body">
+          {% if result.absent %}
+            {% for name in result.absent %}
+            <div class="list-item">
+              <div class="avatar">{{ name[0].upper() }}</div>
+              {{ name }}
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="empty-state">All students are present!</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <a href="{{ url_for('report') }}" class="btn-report">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+      View Attendance Report
+    </a>
+  </main>
+
+</body>
+</html>
