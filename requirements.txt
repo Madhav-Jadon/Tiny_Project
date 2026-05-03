@@ -1,6 +1,0 @@
-flask
-gunicorn
-pandas
-numpy
-opencv-python-headless
-insightface
